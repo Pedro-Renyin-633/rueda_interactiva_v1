@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUEDA DE PREGUNTAS 2026</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #333;
+            --primary-color: #2563eb;
+            --success-color: #16a34a;
+            --danger-color: #dc2626;
+            --panel-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            width: 100%;
+            max-width: 1100px;
+            flex-wrap: wrap;
+        }
+
+        .game-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .wheel-box {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            margin-bottom: 20px;
+        }
+
+        #wheelCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+        }
+
+        #arrow {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 35px solid #1e293b;
+            z-index: 10;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+        }
+
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+
+        #spinBtn {
+            font-size: 1.4rem;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 50px;
+        }
+
+        .control-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-save { background-color: var(--success-color); }
+        .btn-download { background-color: #9333ea; }
+        .btn-check { background-color: #eab308; color: #000; width: 100%; margin-top: 15px; }
+        .btn-danger { background-color: var(--danger-color); padding: 6px 12px; font-size: 0.85rem; }
+        .btn-secondary { background-color: #4b5563; padding: 6px 12px; font-size: 0.85rem; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .timer-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            height: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #timerBar {
+            width: 100%;
+            height: 100%;
+            background-color: var(--success-color);
+            transition: width 1s linear, background-color 0.5s ease;
+        }
+
+        #timerText {
+            font-weight: bold;
+            color: #4b5563;
+            text-align: right;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            padding: 14px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover { background: #e5e7eb; border-color: #d1d5db; }
+        
+        .option-btn.selected {
+            background: #dbeafe !important;
+            border-color: #3b82f6 !important;
+            font-weight: bold;
+        }
+
+        .edit-panel {
+            display: none;
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 1100px;
+            margin-top: 30px;
+        }
+
+        .edit-section-block {
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #f9fafb;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
+        input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
+        input[type="color"] { width: 50px; height: 40px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; }
+        .color-picker-group { display: flex; align-items: center; gap: 10px; }
+        .qa-edit-block { background: white; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid var(--primary-color); position: relative; }
+        .options-edit-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .option-edit-row { display: flex; gap: 10px; align-items: center; }
+        
+        .section-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="gameTitleDisplay">RUEDA DE PREGUNTAS V1</h1>
+    </header>
+
+    <main class="main-container">
+        <div class="game-zone">
+            <div class="wheel-box">
+                <div id="arrow"></div>
+                <canvas id="wheelCanvas" width="500" height="500" style="transform: rotate(84.1938deg); transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);"></canvas>
+            </div>
+            <button id="spinBtn" class="btn">¡INICIO!</button>
+        </div>
+    </main>
+
+    <!-- Panel de Edición Dinámico -->
+    <section id="editPanel" class="edit-panel" style="display: block;">
+        <h2 style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+            <span>⚙️ Configuración Dinámica Avanzada (Modo Oculto)</span>
+            <button id="btnDownload" class="btn btn-download">Descargar Código (.html)</button>
+        </h2>
+        
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1; min-width: 250px;">
+                <label for="editGameTitle">Nombre Principal del Juego</label>
+                <input type="text" id="editGameTitle">
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 250px;">
+                <label for="editPassword">Contraseña de Edición</label>
+                <input type="password" id="editPassword">
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 250px;">
+                <label for="editTimeLimit">Tiempo de Respuesta (Segundos)</label>
+                <input type="number" id="editTimeLimit" min="5" max="300">
+            </div>
+        </div>
+
+        <h3 style="margin: 20px 0 10px 0;">Estructura Filtrada de Secciones</h3>
+        <div id="sectionsEditContainer"><div class="edit-section-block" id="edit-sec-block-1">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-1" value="I" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-1" value="#dc2626">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(1)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-1"><div class="qa-edit-block" id="q-block-1-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(1, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-1-0" value="¿En qué año se llevó a cabo la Revolución de Mayo?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-1-0">
+                        
+                        <div class="option-edit-row" id="opt-row-1-0-0">
+                            <input type="radio" name="correct-1-0" value="0">
+                            <input type="text" class="opt-input-1-0" value="1816" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(1, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-1-0-1">
+                            <input type="radio" name="correct-1-0" checked="" value="1">
+                            <input type="text" class="opt-input-1-0" value="1810" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(1, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-1-0-2">
+                            <input type="radio" name="correct-1-0" value="2">
+                            <input type="text" class="opt-input-1-0" value="1853" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(1, 0, 2)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-1-0-3">
+                            <input type="radio" name="correct-1-0" value="3">
+                            <input type="text" class="opt-input-1-0" value="1806" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(1, 0, 3)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(1, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-2">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-2" value="II" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-2" value="#f97316">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(2)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-2"><div class="qa-edit-block" id="q-block-2-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(2, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-2-0" value="¿Quién era el Virrey del Río de la Plata en mayo de 1810?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-2-0">
+                        
+                        <div class="option-edit-row" id="opt-row-2-0-0">
+                            <input type="radio" name="correct-2-0" checked="" value="0">
+                            <input type="text" class="opt-input-2-0" value="Baltasar Hidalgo de Cisneros" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(2, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-2-0-1">
+                            <input type="radio" name="correct-2-0" value="1">
+                            <input type="text" class="opt-input-2-0" value="Santiago de Liniers" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(2, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-2-0-2">
+                            <input type="radio" name="correct-2-0" value="2">
+                            <input type="text" class="opt-input-2-0" value="Rafael de Sobremonte" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(2, 0, 2)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(2, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-3">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-3" value="III" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-3" value="#78350f">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(3)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-3"><div class="qa-edit-block" id="q-block-3-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(3, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-3-0" value="¿Quién fue designado como presidente de la Primera Junta de Gobierno?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-3-0">
+                        
+                        <div class="option-edit-row" id="opt-row-3-0-0">
+                            <input type="radio" name="correct-3-0" value="0">
+                            <input type="text" class="opt-input-3-0" value="Mariano Moreno" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(3, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-3-0-1">
+                            <input type="radio" name="correct-3-0" value="1">
+                            <input type="text" class="opt-input-3-0" value="Juan José Paso" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(3, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-3-0-2">
+                            <input type="radio" name="correct-3-0" checked="" value="2">
+                            <input type="text" class="opt-input-3-0" value="Cornelio Saavedra" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(3, 0, 2)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-3-0-3">
+                            <input type="radio" name="correct-3-0" value="3">
+                            <input type="text" class="opt-input-3-0" value="Manuel Belgrano" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(3, 0, 3)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(3, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-4">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-4" value="IV" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-4" value="#38bdf8">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(4)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-4"><div class="qa-edit-block" id="q-block-4-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(4, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-4-0" value="¿Qué funciones cumplían Mariano Moreno y Juan José Paso en la Primera Junta?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-4-0">
+                        
+                        <div class="option-edit-row" id="opt-row-4-0-0">
+                            <input type="radio" name="correct-4-0" value="0">
+                            <input type="text" class="opt-input-4-0" value="Vocales" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(4, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-4-0-1">
+                            <input type="radio" name="correct-4-0" value="1">
+                            <input type="text" class="opt-input-4-0" value="Presidentes" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(4, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-4-0-2">
+                            <input type="radio" name="correct-4-0" checked="" value="2">
+                            <input type="text" class="opt-input-4-0" value="Secretarios" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(4, 0, 2)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(4, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-5">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-5" value="V" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-5" value="#8b5cf6">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(5)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-5"><div class="qa-edit-block" id="q-block-5-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(5, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-5-0" value="¿Dónde se reunían los vecinos de Buenos Aires para discutir la destitución del Virrey?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-5-0">
+                        
+                        <div class="option-edit-row" id="opt-row-5-0-0">
+                            <input type="radio" name="correct-5-0" checked="" value="0">
+                            <input type="text" class="opt-input-5-0" value="En el Cabildo Abierto" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(5, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-5-0-1">
+                            <input type="radio" name="correct-5-0" value="1">
+                            <input type="text" class="opt-input-5-0" value="En la Recova" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(5, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-5-0-2">
+                            <input type="radio" name="correct-5-0" value="2">
+                            <input type="text" class="opt-input-5-0" value="En la Manzana de las Luces" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(5, 0, 2)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(5, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-6">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-6" value="VI" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-6" value="#eab308">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(6)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-6"><div class="qa-edit-block" id="q-block-6-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(6, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-6-0" value="¿Qué país europeo había invadido España, desencadenando la crisis del poder monárquico?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-6-0">
+                        
+                        <div class="option-edit-row" id="opt-row-6-0-0">
+                            <input type="radio" name="correct-6-0" value="0">
+                            <input type="text" class="opt-input-6-0" value="Inglaterra" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(6, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-6-0-1">
+                            <input type="radio" name="correct-6-0" checked="" value="1">
+                            <input type="text" class="opt-input-6-0" value="Francia (Napoleón Bonaparte)" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(6, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-6-0-2">
+                            <input type="radio" name="correct-6-0" value="2">
+                            <input type="text" class="opt-input-6-0" value="Portugal" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(6, 0, 2)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-6-0-3">
+                            <input type="radio" name="correct-6-0" value="3">
+                            <input type="text" class="opt-input-6-0" value="Italia" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(6, 0, 3)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(6, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-7">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-7" value="VII" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-7" value="#22c55e">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(7)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-7"><div class="qa-edit-block" id="q-block-7-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(7, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-7-0" value="¿Quiénes son los dos personajes patrios tradicionalmente asociados al reparto de escarapelas en la plaza?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-7-0">
+                        
+                        <div class="option-edit-row" id="opt-row-7-0-0">
+                            <input type="radio" name="correct-7-0" checked="" value="0">
+                            <input type="text" class="opt-input-7-0" value="French y Beruti" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(7, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-7-0-1">
+                            <input type="radio" name="correct-7-0" value="1">
+                            <input type="text" class="opt-input-7-0" value="Belgrano y Castelli" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(7, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-7-0-2">
+                            <input type="radio" name="correct-7-0" value="2">
+                            <input type="text" class="opt-input-7-0" value="San Martín y Pueyrredón" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(7, 0, 2)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(7, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-8">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-8" value="VIII" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-8" value="#2563eb">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(8)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-8"><div class="qa-edit-block" id="q-block-8-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(8, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-8-0" value="¿Qué rey español había sido tomado prisionero por Napoleón Bonaparte?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-8-0">
+                        
+                        <div class="option-edit-row" id="opt-row-8-0-0">
+                            <input type="radio" name="correct-8-0" value="0">
+                            <input type="text" class="opt-input-8-0" value="Carlos III" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(8, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-8-0-1">
+                            <input type="radio" name="correct-8-0" checked="" value="1">
+                            <input type="text" class="opt-input-8-0" value="Fernando VII" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(8, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-8-0-2">
+                            <input type="radio" name="correct-8-0" value="2">
+                            <input type="text" class="opt-input-8-0" value="Felipe V" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(8, 0, 2)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(8, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-9">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-9" value="IX" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-9" value="#ffffff">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(9)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-9"><div class="qa-edit-block" id="q-block-9-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(9, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-9-0" value="¿Cómo se llamó el órgano ejecutivo que se formó el 25 de mayo de 1810?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-9-0">
+                        
+                        <div class="option-edit-row" id="opt-row-9-0-0">
+                            <input type="radio" name="correct-9-0" value="0">
+                            <input type="text" class="opt-input-9-0" value="Junta Grande" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(9, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-9-0-1">
+                            <input type="radio" name="correct-9-0" value="1">
+                            <input type="text" class="opt-input-9-0" value="Primer Triunvirato" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(9, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-9-0-2">
+                            <input type="radio" name="correct-9-0" checked="" value="2">
+                            <input type="text" class="opt-input-9-0" value="Primera Junta de Gobierno" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(9, 0, 2)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(9, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div><div class="edit-section-block" id="edit-sec-block-10">
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-10" value="X" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-10" value="#000000">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(10)">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-10"><div class="qa-edit-block" id="q-block-10-0">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° 1</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(10, 0)">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-10-0" value="¿Qué nombre recibía la plaza que hoy conocemos como 'Plaza de Mayo' en 1810?" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-10-0">
+                        
+                        <div class="option-edit-row" id="opt-row-10-0-0">
+                            <input type="radio" name="correct-10-0" value="0">
+                            <input type="text" class="opt-input-10-0" value="Plaza de la Victoria" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(10, 0, 0)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-10-0-1">
+                            <input type="radio" name="correct-10-0" value="1">
+                            <input type="text" class="opt-input-10-0" value="Plaza de Armas" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(10, 0, 1)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-10-0-2">
+                            <input type="radio" name="correct-10-0" value="2">
+                            <input type="text" class="opt-input-10-0" value="Plaza Mayor" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(10, 0, 2)">✕</button>
+                        </div>
+                    
+                        <div class="option-edit-row" id="opt-row-10-0-3">
+                            <input type="radio" name="correct-10-0" checked="" value="3">
+                            <input type="text" class="opt-input-10-0" value="Todas las anteriores son correctas" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(10, 0, 3)">✕</button>
+                        </div>
+                    
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(10, 0)">+ Agregar Opción</button>
+                </div></div>
+                </div></div>
+
+        <div class="control-bar" style="justify-content: flex-start; margin-top: 20px;">
+            <button id="btnSaveConfig" class="btn btn-save">Guardar Configuración</button>
+        </div>
+    </section>
+
+    <!-- Modal de Preguntas -->
+    <div id="questionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" id="closeQuestionModal">×</span>
+            <h2 id="modalSectionTitle" style="color: var(--primary-color); margin-bottom: 5px;">Sección: VI</h2>
+            
+            <div id="timerText">Tiempo restante: 13s</div>
+            <div class="timer-container">
+                <div id="timerBar" style="width: 86.6667%; background-color: var(--success-color);"></div>
+            </div>
+
+            <h3 id="modalQuestionText" style="margin-bottom: 20px; font-weight: 600;">¿Qué país europeo había invadido España, desencadenando la crisis del poder monárquico?</h3>
+            
+            <div class="options-container" id="modalOptionsContainer"><button class="option-btn">Inglaterra</button><button class="option-btn">Francia (Napoleón Bonaparte)</button><button class="option-btn">Portugal</button><button class="option-btn">Italia</button></div>
+            
+            <button id="btnCheckAnswer" class="btn btn-check" disabled="" style="background-color: rgb(234, 179, 8);">Comprobar Respuesta</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN BASE CON PREGUNTAS DEL 25 DE MAYO ---
+        const defaultData = {
+            title: "RUEDA DE PREGUNTAS 2026",
+            password: "1234",
+            timeLimit: 120, // 2 minutos de tiempo límite por defecto
+            sections: [
+                { id: 1, name: "I", color: "#dc2626" },
+                { id: 2, name: "II", color: "#f97316" },
+                { id: 3, name: "III", color: "#78350f" },
+                { id: 4, name: "IV", color: "#38bdf8" },
+                { id: 5, name: "V", color: "#8b5cf6" },
+                { id: 6, name: "VI", color: "#eab308" },
+                { id: 7, name: "VII", color: "#22c55e" },
+                { id: 8, name: "VIII", color: "#2563eb" },
+                { id: 9, name: "IX", color: "#ffffff" },
+                { id: 10, name: "X", color: "#000000" }
+            ],
+            questions: {
+                1: [
+                    {
+                        text: "¿En qué año se llevó a cabo la Revolución de Mayo?",
+                        options: ["1816", "1810", "1853", "1806"],
+                        correct: 1
+                    }
+                ],
+                2: [
+                    {
+                        text: "¿Quién era el Virrey del Río de la Plata en mayo de 1810?",
+                        options: ["Baltasar Hidalgo de Cisneros", "Santiago de Liniers", "Rafael de Sobremonte"],
+                        correct: 0
+                    }
+                ],
+                3: [
+                    {
+                        text: "¿Quién fue designado como presidente de la Primera Junta de Gobierno?",
+                        options: ["Mariano Moreno", "Juan José Paso", "Cornelio Saavedra", "Manuel Belgrano"],
+                        correct: 2
+                    }
+                ],
+                4: [
+                    {
+                        text: "¿Qué funciones cumplían Mariano Moreno y Juan José Paso en la Primera Junta?",
+                        options: ["Vocales", "Presidentes", "Secretarios"],
+                        correct: 2
+                    }
+                ],
+                5: [
+                    {
+                        text: "¿Dónde se reunían los vecinos de Buenos Aires para discutir la destitución del Virrey?",
+                        options: ["En el Cabildo Abierto", "En la Recova", "En la Manzana de las Luces"],
+                        correct: 0
+                    }
+                ],
+                6: [
+                    {
+                        text: "¿Qué país europeo había invadido España, desencadenando la crisis del poder monárquico?",
+                        options: ["Inglaterra", "Francia (Napoleón Bonaparte)", "Portugal", "Italia"],
+                        correct: 1
+                    }
+                ],
+                7: [
+                    {
+                        text: "¿Quiénes son los dos personajes patrios tradicionalmente asociados al reparto de escarapelas en la plaza?",
+                        options: ["French y Beruti", "Belgrano y Castelli", "San Martín y Pueyrredón"],
+                        correct: 0
+                    }
+                ],
+                8: [
+                    {
+                        text: "¿Qué rey español había sido tomado prisionero por Napoleón Bonaparte?",
+                        options: ["Carlos III", "Fernando VII", "Felipe V"],
+                        correct: 1
+                    }
+                ],
+                9: [
+                    {
+                        text: "¿Cómo se llamó el órgano ejecutivo que se formó el 25 de mayo de 1810?",
+                        options: ["Junta Grande", "Primer Triunvirato", "Primera Junta de Gobierno"],
+                        correct: 2
+                    }
+                ],
+                10: [
+                    {
+                        text: "¿Qué nombre recibía la plaza que hoy conocemos como 'Plaza de Mayo' en 1810?",
+                        options: ["Plaza de la Victoria", "Plaza de Armas", "Plaza Mayor", "Todas las anteriores son correctas"],
+                        correct: 3
+                    }
+                ]
+            }
+        };
+
+        let gameState = {"title":"RUEDA DE PREGUNTAS V1","password":"admin123","timeLimit":15,"sections":[{"id":1,"name":"I","color":"#dc2626"},{"id":2,"name":"II","color":"#f97316"},{"id":3,"name":"III","color":"#78350f"},{"id":4,"name":"IV","color":"#38bdf8"},{"id":5,"name":"V","color":"#8b5cf6"},{"id":6,"name":"VI","color":"#eab308"},{"id":7,"name":"VII","color":"#22c55e"},{"id":8,"name":"VIII","color":"#2563eb"},{"id":9,"name":"IX","color":"#ffffff"},{"id":10,"name":"X","color":"#000000"}],"questions":{"1":[{"text":"¿En qué año se llevó a cabo la Revolución de Mayo?","options":["1816","1810","1853","1806"],"correct":1}],"2":[{"text":"¿Quién era el Virrey del Río de la Plata en mayo de 1810?","options":["Baltasar Hidalgo de Cisneros","Santiago de Liniers","Rafael de Sobremonte"],"correct":0}],"3":[{"text":"¿Quién fue designado como presidente de la Primera Junta de Gobierno?","options":["Mariano Moreno","Juan José Paso","Cornelio Saavedra","Manuel Belgrano"],"correct":2}],"4":[{"text":"¿Qué funciones cumplían Mariano Moreno y Juan José Paso en la Primera Junta?","options":["Vocales","Presidentes","Secretarios"],"correct":2}],"5":[{"text":"¿Dónde se reunían los vecinos de Buenos Aires para discutir la destitución del Virrey?","options":["En el Cabildo Abierto","En la Recova","En la Manzana de las Luces"],"correct":0}],"6":[{"text":"¿Qué país europeo había invadido España, desencadenando la crisis del poder monárquico?","options":["Inglaterra","Francia (Napoleón Bonaparte)","Portugal","Italia"],"correct":1}],"7":[{"text":"¿Quiénes son los dos personajes patrios tradicionalmente asociados al reparto de escarapelas en la plaza?","options":["French y Beruti","Belgrano y Castelli","San Martín y Pueyrredón"],"correct":0}],"8":[{"text":"¿Qué rey español había sido tomado prisionero por Napoleón Bonaparte?","options":["Carlos III","Fernando VII","Felipe V"],"correct":1}],"9":[{"text":"¿Cómo se llamó el órgano ejecutivo que se formó el 25 de mayo de 1810?","options":["Junta Grande","Primer Triunvirato","Primera Junta de Gobierno"],"correct":2}],"10":[{"text":"¿Qué nombre recibía la plaza que hoy conocemos como 'Plaza de Mayo' en 1810?","options":["Plaza de la Victoria","Plaza de Armas","Plaza Mayor","Todas las anteriores son correctas"],"correct":3}]}};
+
+        // --- MOTOR GRÁFICO DEL CANVAS ---
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const numSegments = 10;
+        const segmentAngle = (2 * Math.PI) / numSegments;
+        let currentRotation = 0;
+        let isSpinning = false;
+
+        let countdownInterval = null;
+        let timeLeft = 0;
+        let currentCorrectIndex = null;
+        let selectedOptionIndex = null;
+
+        function drawWheel() {
+            const size = canvas.width;
+            const center = size / 2;
+            const radius = center - 10;
+            ctx.clearRect(0, 0, size, size);
+
+            gameState.sections.forEach((sec, index) => {
+                const startAngle = index * segmentAngle + currentRotation;
+                const endAngle = startAngle + segmentAngle;
+
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = sec.color;
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(startAngle + segmentAngle / 2);
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = (sec.color === "#ffffff" || sec.color === "#eab308" || sec.color === "#38bdf8") ? "#000000" : "#ffffff";
+                ctx.font = "bold 20px sans-serif";
+                ctx.fillText(sec.name, radius - 30, 0);
+                ctx.restore();
+            });
+
+            ctx.beginPath();
+            ctx.arc(center, center, 25, 0, 2 * Math.PI);
+            ctx.fillStyle = "#1e293b";
+            ctx.fill();
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        document.getElementById('spinBtn').addEventListener('click', () => {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            const extraSpins = Math.floor(Math.random() * 5) + 5;
+            const targetAngle = Math.random() * (2 * Math.PI);
+            const totalRotation = extraSpins * 2 * Math.PI + targetAngle;
+            
+            const canvasElement = document.getElementById('wheelCanvas');
+            canvasElement.style.transform = `rotate(${totalRotation * (180 / Math.PI)}deg)`;
+
+            setTimeout(() => {
+                isSpinning = false;
+                const normalizedAngle = (2 * Math.PI - (totalRotation % (2 * Math.PI)) + (3 * Math.PI / 2)) % (2 * Math.PI);
+                const selectedIndex = Math.floor(normalizedAngle / segmentAngle) % numSegments;
+                
+                triggerQuestion(gameState.sections[selectedIndex]);
+                
+                currentRotation = totalRotation % (2 * Math.PI);
+                canvasElement.style.transition = 'none';
+                canvasElement.style.transform = `rotate(${currentRotation * (180 / Math.PI)}deg)`;
+                setTimeout(() => canvasElement.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)', 50);
+            }, 4000);
+        });
+
+        function triggerQuestion(section) {
+            clearInterval(countdownInterval);
+            selectedOptionIndex = null;
+            
+            const btnCheck = document.getElementById('btnCheckAnswer');
+            btnCheck.disabled = true;
+            btnCheck.style.backgroundColor = '#eab308';
+            btnCheck.innerText = "Comprobar Respuesta";
+
+            const sectionQuestions = gameState.questions[section.id] || [];
+            if (sectionQuestions.length === 0) {
+                alert(`La sección ${section.name} no tiene preguntas cargadas.`);
+                return;
+            }
+            
+            const randomQuestion = sectionQuestions[Math.floor(Math.random() * sectionQuestions.length)];
+            currentCorrectIndex = randomQuestion.correct;
+
+            document.getElementById('modalSectionTitle').innerText = `Sección: ${section.name}`;
+            document.getElementById('modalQuestionText').innerText = randomQuestion.text;
+            
+            const container = document.getElementById('modalOptionsContainer');
+            container.innerHTML = '';
+
+            randomQuestion.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    if (timeLeft > 0 && btnCheck.innerText === "Comprobar Respuesta") {
+                        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        selectedOptionIndex = idx;
+                        btnCheck.disabled = false;
+                    }
+                };
+                container.appendChild(btn);
+            });
+
+            timeLeft = gameState.timeLimit || 120;
+            updateTimerUI();
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+
+            document.getElementById('questionModal').style.display = 'flex';
+        }
+
+        function updateTimerUI() {
+            document.getElementById('timerText').innerText = `Tiempo restante: ${timeLeft}s`;
+            const bar = document.getElementById('timerBar');
+            const percentage = (timeLeft / (gameState.timeLimit || 120)) * 100;
+            bar.style.width = `${percentage}%`;
+            bar.style.backgroundColor = percentage <= 25 ? 'var(--danger-color)' : percentage <= 50 ? '#eab308' : 'var(--success-color)';
+        }
+
+        function handleTimeout() {
+            document.getElementById('timerText').innerText = "¡TIEMPO AGOTADO!";
+            document.getElementById('btnCheckAnswer').disabled = true;
+            const buttons = document.querySelectorAll('.option-btn');
+            if (buttons[currentCorrectIndex]) {
+                buttons[currentCorrectIndex].style.backgroundColor = '#bbf7d0';
+                buttons[currentCorrectIndex].style.borderColor = 'var(--success-color)';
+            }
+            alert('Se terminó el tiempo límite.');
+        }
+
+        document.getElementById('btnCheckAnswer').addEventListener('click', function() {
+            if (selectedOptionIndex === null) return;
+            clearInterval(countdownInterval);
+            this.disabled = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            if (selectedOptionIndex === currentCorrectIndex) {
+                buttons[selectedOptionIndex].style.backgroundColor = '#bbf7d0';
+                buttons[selectedOptionIndex].style.borderColor = 'var(--success-color)';
+                this.innerText = "¡CORRECTO!";
+                this.style.backgroundColor = 'var(--success-color)';
+                this.style.color = '#fff';
+            } else {
+                buttons[selectedOptionIndex].style.backgroundColor = '#fecaca';
+                buttons[selectedOptionIndex].style.borderColor = 'var(--danger-color)';
+                if (buttons[currentCorrectIndex]) {
+                    buttons[currentCorrectIndex].style.backgroundColor = '#bbf7d0';
+                    buttons[currentCorrectIndex].style.borderColor = 'var(--success-color)';
+                }
+                this.innerText = "INCORRECTO";
+                this.style.backgroundColor = 'var(--danger-color)';
+                this.style.color = '#fff';
+            }
+        });
+
+        // --- ACCESO OCULTO POR TECLADO ---
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'E' || e.key === 'e') {
+                const panel = document.getElementById('editPanel');
+                if (panel.style.display === 'block') {
+                    panel.style.display = 'none';
+                    return;
+                }
+
+                const pass = prompt("Acceso Administrador. Ingrese contraseña:");
+                if (pass === gameState.password) {
+                    buildEditorForm();
+                    panel.style.display = 'block';
+                    panel.scrollIntoView({ behavior: 'smooth' });
+                } else if (pass !== null) {
+                    alert("Llave inválida.");
+                }
+            }
+        });
+
+        function buildEditorForm() {
+            document.getElementById('editGameTitle').value = gameState.title;
+            document.getElementById('editPassword').value = gameState.password;
+            document.getElementById('editTimeLimit').value = gameState.timeLimit || 120;
+            
+            const container = document.getElementById('sectionsEditContainer');
+            container.innerHTML = '';
+
+            gameState.sections.forEach(sec => {
+                const secBlock = document.createElement('div');
+                secBlock.className = 'edit-section-block';
+                secBlock.id = `edit-sec-block-${sec.id}`;
+                
+                secBlock.innerHTML = `
+                    <div class="section-header-flex">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <label>Sección:</label>
+                            <input type="text" id="secName-${sec.id}" value="${sec.name}" style="width:100px;">
+                            <label>Color:</label>
+                            <input type="color" id="secColor-${sec.id}" value="${sec.color}">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestionToSection(${sec.id})">+ Agregar Nueva Pregunta</button>
+                    </div>
+                    <div id="qaContainer-${sec.id}"></div>
+                `;
+                container.appendChild(secBlock);
+                renderQuestionsForSection(sec.id);
+            });
+        }
+
+        function renderQuestionsForSection(sectionId) {
+            const qaContainer = document.getElementById(`qaContainer-${sectionId}`);
+            qaContainer.innerHTML = '';
+
+            const questions = gameState.questions[sectionId] || [];
+            
+            if (questions.length === 0) {
+                qaContainer.innerHTML = '<p style="color:#9ca3af; font-style:italic;">No hay preguntas creadas para esta sección.</p>';
+                return;
+            }
+
+            questions.forEach((q, qIdx) => {
+                const qBlock = document.createElement('div');
+                qBlock.className = 'qa-edit-block';
+                qBlock.id = `q-block-${sectionId}-${qIdx}`;
+
+                let optionsHTML = '';
+                q.options.forEach((opt, oIdx) => {
+                    optionsHTML += `
+                        <div class="option-edit-row" id="opt-row-${sectionId}-${qIdx}-${oIdx}">
+                            <input type="radio" name="correct-${sectionId}-${qIdx}" ${q.correct === oIdx ? 'checked' : ''} value="${oIdx}">
+                            <input type="text" class="opt-input-${sectionId}-${qIdx}" value="${opt}" placeholder="Texto de la opción">
+                            <button type="button" class="btn btn-danger" style="padding:4px 8px;" onclick="removeOptionFromQuestion(${sectionId}, ${qIdx}, ${oIdx})">✕</button>
+                        </div>
+                    `;
+                });
+
+                qBlock.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="color:var(--primary-color); font-size:1rem;">Pregunta N° ${qIdx + 1}</label>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestionFromSection(${sectionId}, ${qIdx})">Eliminar Pregunta Completa</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="qText-${sectionId}-${qIdx}" value="${q.text}" placeholder="Escriba la pregunta aquí">
+                    </div>
+                    <label style="font-size:0.8rem; color:#6b7280; margin-bottom:5px;">Opciones (Marque el círculo de la correcta):</label>
+                    <div class="options-edit-grid" id="optionsGrid-${sectionId}-${qIdx}">
+                        ${optionsHTML}
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top:10px; background-color:#10b981;" onclick="addOptionToQuestion(${sectionId}, ${qIdx})">+ Agregar Opción</button>
+                `;
+                qaContainer.appendChild(qBlock);
+            });
+        }
+
+        window.addQuestionToSection = function(sectionId) {
+            saveCurrentEditorStateData();
+            if (!gameState.questions[sectionId]) gameState.questions[sectionId] = [];
+            gameState.questions[sectionId].push({
+                text: "Nueva Pregunta Temática",
+                options: ["Opción Verdadera", "Opción Falsa"],
+                correct: 0
+            });
+            renderQuestionsForSection(sectionId);
+        };
+
+        window.removeQuestionFromSection = function(sectionId, qIdx) {
+            saveCurrentEditorStateData();
+            gameState.questions[sectionId].splice(qIdx, 1);
+            renderQuestionsForSection(sectionId);
+        };
+
+        window.addOptionToQuestion = function(sectionId, qIdx) {
+            saveCurrentEditorStateData();
+            const q = gameState.questions[sectionId][qIdx];
+            q.options.push(`Nueva Opción`);
+            renderQuestionsForSection(sectionId);
+        };
+
+        window.removeOptionFromQuestion = function(sectionId, qIdx, oIdx) {
+            saveCurrentEditorStateData();
+            const q = gameState.questions[sectionId][qIdx];
+            if (q.options.length <= 2) {
+                alert("Mínimo 2 opciones.");
+                return;
+            }
+            q.options.splice(oIdx, 1);
+            if (q.correct >= q.options.length) q.correct = 0;
+            renderQuestionsForSection(sectionId);
+        };
+
+        function saveCurrentEditorStateData() {
+            gameState.title = document.getElementById('editGameTitle').value;
+            gameState.password = document.getElementById('editPassword').value;
+            gameState.timeLimit = parseInt(document.getElementById('editTimeLimit').value) || 120;
+
+            gameState.sections.forEach(sec => {
+                const nameInp = document.getElementById(`secName-${sec.id}`);
+                const colorInp = document.getElementById(`secColor-${sec.id}`);
+                if (nameInp) sec.name = nameInp.value;
+                if (colorInp) sec.color = colorInp.value;
+
+                const questions = gameState.questions[sec.id] || [];
+                questions.forEach((q, qIdx) => {
+                    const qTextInp = document.getElementById(`qText-${sec.id}-${qIdx}`);
+                    if (qTextInp) q.text = qTextInp.value;
+
+                    const selectedCorrect = document.querySelector(`input[name="correct-${sec.id}-${qIdx}"]:checked`);
+                    if (selectedCorrect) q.correct = parseInt(selectedCorrect.value);
+
+                    const optInputs = document.querySelectorAll(`.opt-input-${sec.id}-${qIdx}`);
+                    optInputs.forEach((inp, idx) => {
+                        if (q.options[idx] !== undefined) q.options[idx] = inp.value;
+                    });
+                });
+            });
+        }
+
+        document.getElementById('btnSaveConfig').addEventListener('click', () => {
+            saveCurrentEditorStateData();
+            localStorage.setItem('wheel_game_state_2026', JSON.stringify(gameState));
+            drawWheel();
+            document.getElementById('gameTitleDisplay').innerText = gameState.title;
+            alert("¡Estructura guardada exitosamente con las preguntas del 25 de mayo!");
+            document.getElementById('editPanel').style.display = 'none';
+        });
+
+        document.getElementById('btnDownload').addEventListener('click', () => {
+            saveCurrentEditorStateData();
+            const stateString = JSON.stringify(gameState);
+            let currentHTML = document.documentElement.outerHTML;
+            
+            const stateRegex = /let gameState = JSON\.parse\(localStorage\.getItem\('wheel_game_state_2026'\)\) \|\| defaultData;/;
+            currentHTML = currentHTML.replace(stateRegex, `let gameState = ${stateString};`);
+
+            const blob = new Blob(["<!DOCTYPE html>\n" + currentHTML], { type: "text/html;charset=utf-8" });
+            const tempAnchor = document.createElement("a");
+            tempAnchor.href = URL.createObjectURL(blob);
+            tempAnchor.download = `${gameState.title.replace(/\s+/g, '_')}.html`;
+            
+            document.body.appendChild(tempAnchor);
+            tempAnchor.click();
+            document.body.removeChild(tempAnchor);
+        });
+
+        document.getElementById('closeQuestionModal').onclick = () => {
+            clearInterval(countdownInterval);
+            document.getElementById('questionModal').style.display = 'none';
+        };
+
+        document.getElementById('gameTitleDisplay').innerText = gameState.title;
+        drawWheel();
+    </script>
+
+</body></html>
